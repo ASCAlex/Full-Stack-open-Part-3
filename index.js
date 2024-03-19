@@ -27,6 +27,12 @@ app.get('', (request, response) => {
     response.send('<h1>Welcome, go to <a href="http://localhost:3001/api/persons">api/persons</a></h1>')
 })
 
+app.get('/api/info', (request, response) => {
+    const personCount = persons.length
+    const time = new Date()
+    response.send(`<p>Phonebook has info for ${personCount} people<br/>${time}</p>`)
+})
+
 app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
