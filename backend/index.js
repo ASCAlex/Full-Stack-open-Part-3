@@ -3,6 +3,7 @@ const {request, json} = require("express");
 const app = express()
 const morgan = require("morgan")
 app.use(express.json());
+app.use(express.static('dist'))
 
 app.use(morgan('tiny', {
     skip: function (req, res) { return req.method === 'POST' }
