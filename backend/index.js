@@ -1,14 +1,17 @@
+require('dotenv').config()
 const express = require("express")
 const {request, json} = require("express");
 const app = express()
 const morgan = require("morgan")
+const cors = require('cors')
+const Entry = require('./models/entry')
+
+app.use(cors())
 app.use(express.json());
 app.use(express.static('dist'))
-
 app.use(morgan('tiny', {
     skip: function (req, res) { return req.method === 'POST' }
 }))
-
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-info", {
     skip: function (req, res) { return req.method !== 'POST' }
 }))
@@ -16,6 +19,7 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :p
 morgan.token('post-info', (req, res) => {
     return JSON.stringify(req.body)
 })
+
 
 let persons = [
     {
@@ -51,7 +55,13 @@ app.get('/api/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Entry.find({}).then(entries => {
+        response.json(entries)
+    })
+    .catch(error => {
+        console.error('Error fetching phonebook entries:', error);
+        response.status(500).json({ error: 'Internal server error' }); // Fehlerbehandlung
+    });
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -101,7 +111,7 @@ app.post('/api/persons', (request, response) => {
     response.json(person)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on Port ${PORT}`)
 })
