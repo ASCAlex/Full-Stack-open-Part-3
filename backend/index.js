@@ -93,22 +93,24 @@ app.post('/api/persons', (request, response) => {
             error: 'name or number is missing'
         })
     }
+    /*
     if (persons.find(p => p.name.toLowerCase() === body.name.toLowerCase())) {
         return response.status(400).json({
             error: 'name must be unique'
         })
     }
+    */
 
-    const person = {
+    const entry = new Entry({
         name: body.name,
-        number: body.number,
-        id: generateID()
-    }
+        number: body.number
+    })
 
-    const logInfo = JSON.stringify({name: person.name, number: person.number});
+    entry.save().then(savedEntry => {
+        response.json(savedEntry)
+    })
 
-    persons = persons.concat(person)
-    response.json(person)
+
 })
 
 const PORT = process.env.PORT
