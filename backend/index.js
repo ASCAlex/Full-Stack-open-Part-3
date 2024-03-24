@@ -84,10 +84,6 @@ app.delete('/api/persons/:id', (request, response, next) => {
         .catch(error => next(error))
 })
 
-const generateID = () => {
-    return Math.floor(Math.random() * 10000)
-}
-
 app.post('/api/persons', (request, response) => {
     const body = request.body
     if (!body.name || !body.number) {
@@ -111,8 +107,22 @@ app.post('/api/persons', (request, response) => {
     entry.save().then(savedEntry => {
         response.json(savedEntry)
     })
+})
 
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
 
+    const updatedEntry = new Entry( {
+        _id: request.params.id,
+        name: body.name,
+        number: body.number
+    })
+
+    Entry.findByIdAndUpdate(request.params.id, updatedEntry, {new: true})
+        .then(updatedEntry => {
+            response.json(updatedEntry)
+        })
+        .catch(error => next(error))
 })
 
 const PORT = process.env.PORT

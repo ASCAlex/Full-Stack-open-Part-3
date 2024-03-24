@@ -1,9 +1,9 @@
 DELETE http://localhost:3001/api/persons/65fe96491b1c4a875298ed52
 ###
-POST http://localhost:3001/api/persons
+PUT http://localhost:3001/api/persons/65fd2f1afefb2e496774d2f4
 content-type: application/json
 
 {
-  "name": "Gustav",
-  "number": "0176-4326512061"
+  "name": "Richard Button",
+  "number": "0176-496549898"
 }
