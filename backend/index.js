@@ -48,10 +48,13 @@ app.get('', (request, response) => {
     response.send('<h1>Welcome, go to <a href="http://localhost:3001/api/persons">api/persons</a></h1>')
 })
 
-app.get('/api/info', (request, response) => {
-    const personCount = persons.length
+app.get('/api/info', (request, response, next) => {
     const time = new Date()
-    response.send(`<p>Phonebook has info for ${personCount} people<br/>${time}</p>`)
+    Entry.countDocuments()
+        .then(personCount => {
+            response.send(`<p>Phonebook has info for ${personCount} people<br/>${time}</p>`)
+        })
+        .catch(error => next(error))
 })
 
 app.get('/api/persons', (request, response) => {
