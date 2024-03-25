@@ -94,6 +94,10 @@ const App = () => {
                         setNotificationMessage(null)
                     }, 5000)
                 })
+                .catch(error => {
+                    setNotificationMessage(error.response.data.error)
+                    console.log(error.response.data.error)
+                })
         }
         setNewName('')
         setNewNumber('')
@@ -141,10 +145,11 @@ const App = () => {
             return null
         }
         const notificationStyle = {
-            color: color,
+            color: 'red',
             background: 'lightgrey',
             fontSize: 20,
             borderStyle: 'solid',
+            borderBlockColor: 'red',
             borderRadius: 5,
             padding: 10,
             marginBottom: 10

@@ -20,30 +20,6 @@ morgan.token('post-info', (req, res) => {
     return JSON.stringify(req.body)
 })
 
-
-let persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
 app.get('', (request, response) => {
     response.send('<h1>Welcome, go to <a href="http://localhost:3001/api/persons">api/persons</a></h1>')
 })
@@ -63,7 +39,7 @@ app.get('/api/persons', (request, response) => {
     })
     .catch(error => {
         console.error('Error fetching phonebook entries:', error);
-        response.status(500).json({ error: 'Internal server error' }); // Fehlerbehandlung
+        response.status(500).json({ error: 'Internal server error' });
     });
 })
 
@@ -87,29 +63,19 @@ app.delete('/api/persons/:id', (request, response, next) => {
         .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
-    const body = request.body
-    if (!body.name || !body.number) {
-        return response.status(400).json({
-            error: 'name or number is missing'
-        })
-    }
-    /*
-    if (persons.find(p => p.name.toLowerCase() === body.name.toLowerCase())) {
-        return response.status(400).json({
-            error: 'name must be unique'
-        })
-    }
-    */
+app.post('/api/persons', (request, response, next) => {
+    const { name, number } = request.body
 
     const entry = new Entry({
-        name: body.name,
-        number: body.number
+        name: name,
+        number: number
     })
 
-    entry.save().then(savedEntry => {
-        response.json(savedEntry)
-    })
+    entry.save()
+        .then(savedEntry => {
+            response.json(savedEntry)
+        })
+        .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -121,7 +87,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         number: body.number
     })
 
-    Entry.findByIdAndUpdate(request.params.id, updatedEntry, {new: true})
+    Entry.findByIdAndUpdate(request.params.id, updatedEntry, {new: true, runValidators: true, context: 'query'})
         .then(updatedEntry => {
             response.json(updatedEntry)
         })
@@ -138,6 +104,8 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({error: error.message})
     }
 
     next(error)
