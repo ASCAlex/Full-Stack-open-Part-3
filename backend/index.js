@@ -1,22 +1,21 @@
 require('dotenv').config()
-const express = require("express")
-const {request, json} = require("express");
+const express = require('express')
 const app = express()
-const morgan = require("morgan")
+const morgan = require('morgan')
 const cors = require('cors')
 const Entry = require('./models/entry')
 
 app.use(cors())
-app.use(express.json());
+app.use(express.json())
 app.use(express.static('dist'))
 app.use(morgan('tiny', {
-    skip: function (req, res) { return req.method === 'POST' }
+    skip: function (req) { return req.method === 'POST' }
 }))
-app.use(morgan(":method :url :status :res[content-length] - :response-time ms :post-info", {
-    skip: function (req, res) { return req.method !== 'POST' }
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post-info', {
+    skip: function (req) { return req.method !== 'POST' }
 }))
 
-morgan.token('post-info', (req, res) => {
+morgan.token('post-info', (req) => {
     return JSON.stringify(req.body)
 })
 
@@ -34,13 +33,14 @@ app.get('/api/info', (request, response, next) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    Entry.find({}).then(entries => {
-        response.json(entries)
-    })
-    .catch(error => {
-        console.error('Error fetching phonebook entries:', error);
-        response.status(500).json({ error: 'Internal server error' });
-    });
+    Entry.find({})
+        .then(entries => {
+            response.json(entries)
+        })
+        .catch(error => {
+            console.error('Error fetching phonebook entries:', error)
+            response.status(500).json({ error: 'Internal server error' })
+        })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -57,7 +57,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
     Entry.findByIdAndDelete(request.params.id)
-        .then(result => {
+        .then(() => {
             response.status(204).end()
         })
         .catch(error => next(error))
@@ -87,7 +87,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         number: body.number
     })
 
-    Entry.findByIdAndUpdate(request.params.id, updatedEntry, {new: true, runValidators: true, context: 'query'})
+    Entry.findByIdAndUpdate(request.params.id, updatedEntry, { new: true, runValidators: true, context: 'query' })
         .then(updatedEntry => {
             response.json(updatedEntry)
         })
@@ -105,7 +105,7 @@ const errorHandler = (error, request, response, next) => {
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
-        return response.status(400).json({error: error.message})
+        return response.status(400).json({ error: error.message })
     }
 
     next(error)
