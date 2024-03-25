@@ -1,1 +1,1 @@
-Link to the application: https://full-stack-open-part-3-88al.onrender.com/
+Link to the full stack application: https://full-stack-open-part-3-88al.onrender.com/
